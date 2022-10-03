@@ -39,9 +39,9 @@ app.post('/user/save', (req, res) => {
     
     //GET THE NEW USER FROM THE GET REQUEST
     const userData = req.body
-    //CHECKING ALL THE DATA FILD 
+    //Validate Json File. 
     if (userData.Id ==""|| userData.gender == ""|| userData.name =="" || userData.contact == "" || userData.address == ""| userData.photoUrl == "") {
-        return res.status(401).send({...userData,error: true, msg: 'some user data is missing'})
+        return res.status(401).send({error: true, msg: 'some user data is missing', ...userData})
     }
     
     //check if the username exist already
@@ -54,6 +54,29 @@ app.post('/user/save', (req, res) => {
     //save the new user data
     saveUserData(existUsers);
     res.send({success: true, msg: 'User data added successfully'})
+})
+app.put("/user/update/:Id",(req,res)=>{
+    // get the id from params 
+    const userId = req.params.Id
+    console.log(userId)
+    //get the existing user data
+    const existUsers = getUserData()
+    const userData = req.body
+    // finding user from file Json 
+    const findUser = existUsers.find(user => user.Id == userId )
+    // User not found 
+    if (!findUser) {
+        return res.status(409).send({error: true, msg: 'There is no user found with is id'})
+    }
+    const updateUserData = {...findUser, ...userData}
+    // Filter Data without this user
+    const updateUsers = existUsers.filter( user => user.Id !== +userId )
+    console.log(updateUsers)
+    // push the updated data
+    updateUsers.push(updateUserData)
+    // finally save it
+     saveUserData(updateUsers)
+     res.send({success: true, msg: 'User data updated successfully', ...updateUserData})
 })
 app.get('/', (req, res) => {
     res.send('SERVER IS UP AND RUNNING')
