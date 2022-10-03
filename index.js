@@ -14,20 +14,18 @@ const getUserData = () => {
     const jsonData = fs.readFileSync('data.json')
     return JSON.parse(jsonData)    
 }
-
-
+// GET ALL USER API
+app.get('/user/all', (req, res) => {
+        const {s} = req.query
+        const allUsers = getUserData()
+        const result = allUsers.slice(0,s)
+        res.json(result)
+     })
 // GET A RANDOM USER API
-app.get('/api/v1/user/random', (req, res) => {
-       fs.readFile("data.json",(err,data)=>{
-        if(err) {
-           res.write("Faild To Read File ")
-           res.end()
-        }else{
-           const allUsers = getUserData()
-           const randomUser =Math.floor(Math.random()*allUsers.length)
-           res.json(allUsers[randomUser])
-        }
-    })
+app.get('/user/random', (req, res) => {
+    const allUsers = getUserData()
+    const randomUser =Math.floor(Math.random()*allUsers.length)
+    res.json(allUsers[randomUser])
 })
 app.use('/api/v1/user',randomUserRoute)
 app.get('/', (req, res) => {
