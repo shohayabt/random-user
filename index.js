@@ -55,7 +55,7 @@ app.post('/user/save', (req, res) => {
     saveUserData(existUsers);
     res.send({success: true, msg: 'User data added successfully'})
 })
-app.put("/user/update/:Id",(req,res)=>{
+app.patch("/user/update/:Id",(req,res)=>{
     // get the id from params 
     const userId = req.params.Id
     console.log(userId)
