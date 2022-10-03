@@ -95,6 +95,16 @@ app.patch("/user/bulk-update",(req,res)=>{
     saveUserData(updatedUserArray)
     res.send({success: true, msg: 'All user data  updated successfully', ...updatedUserArray})
 })
+// DELETE USER BY ID 
+app.delete('/user/delete/:Id', (req, res) => {
+    const userId = req.params.Id
+    const allUsers = getUserData()
+    // const findUser  =allUsers.find(user => user.Id === +userId)
+    const updatedUserArray = allUsers.filter(user => user.Id !== +userId)
+    // finally save it
+    saveUserData(updatedUserArray)
+    res.send({success: true, msg: 'Deleted The User ', ...updatedUserArray})
+})
 app.get('/', (req, res) => {
     res.send('SERVER IS UP AND RUNNING')
 })
