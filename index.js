@@ -14,6 +14,12 @@ const getUserData = () => {
     const jsonData = fs.readFileSync('data.json')
     return JSON.parse(jsonData)    
 }
+// STORE USER DATA IN FILE SYSTEM 
+const saveUserData = (data) => {
+    const stringifyData = JSON.stringify(data)
+    fs.writeFileSync('data.json', stringifyData)
+}
+
 // GET ALL USER API
 app.get('/user/all', (req, res) => {
         const {s} = req.query
@@ -27,7 +33,28 @@ app.get('/user/random', (req, res) => {
     const randomUser =Math.floor(Math.random()*allUsers.length)
     res.json(allUsers[randomUser])
 })
-app.use('/api/v1/user',randomUserRoute)
+app.post('/user/save', (req, res) => {
+    //GET EXISTING USERS 
+    const existUsers = getUserData()
+    
+    //GET THE NEW USER FROM THE GET REQUEST
+    const userData = req.body
+    //CHECKING ALL THE DATA FILD 
+    if (userData.Id ==""|| userData.gender == ""|| userData.name =="" || userData.contact == "" || userData.address == ""| userData.photoUrl == "") {
+        return res.status(401).send({...userData,error: true, msg: 'some user data is missing'})
+    }
+    
+    //check if the username exist already
+    const findExist = existUsers.find( user => user.Id === userData.Id )
+    if (findExist) {
+        return res.status(409).send({error: true, msg: 'This user is allready exist'})
+    }
+    //append the user data
+    existUsers.push(userData)
+    //save the new user data
+    saveUserData(existUsers);
+    res.send({success: true, msg: 'User data added successfully'})
+})
 app.get('/', (req, res) => {
     res.send('SERVER IS UP AND RUNNING')
 })
