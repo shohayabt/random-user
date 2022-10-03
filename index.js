@@ -78,6 +78,23 @@ app.patch("/user/update/:Id",(req,res)=>{
      saveUserData(updateUsers)
      res.send({success: true, msg: 'User data updated successfully', ...updateUserData})
 })
+// BULK--- UPDATE ALL USER  AT A TIME 
+app.patch("/user/bulk-update",(req,res)=>{
+    //get the existing user data
+    const existUsers = getUserData()
+    // Updated user infromation from user 
+    const updatedData = req.body
+
+    const updatedUserArray = []
+    existUsers.map(user => {
+        updatingUser = {...user,...updatedData}
+        updatedUserArray.push(updatingUser)
+    })
+    // console.log(updatedUserArray)
+    // finally save it
+    saveUserData(updatedUserArray)
+    res.send({success: true, msg: 'All user data  updated successfully', ...updatedUserArray})
+})
 app.get('/', (req, res) => {
     res.send('SERVER IS UP AND RUNNING')
 })
