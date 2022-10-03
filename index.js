@@ -1,100 +1,14 @@
 const express = require('express')
 const app = express()
 const cors = require("cors")
-const fs = require("fs")
 const port = process.env.PORT || 5000;
 const randomUserRoute = require("./routes/v1/user.route");
-const saveDataToFileSystem = require('./utiles/saveDataToFileSystem');
-const getDataFromFileSystem = require('./utiles/getDataFromFileSystem');
 
 app.use(cors());
-app.use(express());
 app.use(express.json())
-// GET ALL USER API
-app.get('/user/all', (req, res) => {
-        const {s} = req.query
-        const allUsers = getDataFromFileSystem()
-        const result = allUsers.slice(0,s)
-        res.json(result)
-     })
-// GET A RANDOM USER API
-app.get('/user/random', (req, res) => {
-    const allUsers = getDataFromFileSystem()
-    const randomUser =Math.floor(Math.random()*allUsers.length)
-    res.json(allUsers[randomUser])
-})
-app.post('/user/save', (req, res) => {
-    //GET EXISTING USERS 
-    const existUsers = getDataFromFileSystem()
-    
-    //GET THE NEW USER FROM THE GET REQUEST
-    const userData = req.body
-    //Validate Json File. 
-    if (userData.Id ==""|| userData.gender == ""|| userData.name =="" || userData.contact == "" || userData.address == ""| userData.photoUrl == "") {
-        return res.status(401).send({error: true, msg: 'some user data is missing', ...userData})
-    }
-    
-    //check if the username exist already
-    const findExist = existUsers.find( user => user.Id === userData.Id )
-    if (findExist) {
-        return res.status(409).send({error: true, msg: 'This user is allready exist'})
-    }
-    //append the user data
-    existUsers.push(userData)
-    //save the new user data
-    saveDataToFileSystem(existUsers)
-    res.send({success: true, msg: 'User data added successfully'})
-})
-app.patch("/user/update/:Id",(req,res)=>{
-    // get the id from params 
-    const userId = req.params.Id
-    console.log(userId)
-    //get the existing user data
-    const existUsers = getDataFromFileSystem()
-    const userData = req.body
-    // finding user from file Json 
-    const findUser = existUsers.find(user => user.Id == userId )
-    // User not found 
-    if (!findUser) {
-        return res.status(409).send({error: true, msg: 'There is no user found with is id'})
-    }
-    const updateUserData = {...findUser, ...userData}
-    // Filter Data without this user
-    const updateUsers = existUsers.filter( user => user.Id !== +userId )
-    console.log(updateUsers)
-    // push the updated data
-    updateUsers.push(updateUserData)
-    // finally save it
-     saveDataToFileSystem(updateUsers)
-     res.send({success: true, msg: 'User data updated successfully', ...updateUserData})
-})
-// BULK--- UPDATE ALL USER  AT A TIME 
-app.patch("/user/bulk-update",(req,res)=>{
-    //get the existing user data
-    const existUsers = getDataFromFileSystem()
-    // Updated user infromation from user 
-    const updatedData = req.body
 
-    const updatedUserArray = []
-    existUsers.map(user => {
-        updatingUser = {...user,...updatedData}
-        updatedUserArray.push(updatingUser)
-    })
-    // console.log(updatedUserArray)
-    // finally save it
-    saveDataToFileSystem(updatedUserArray)
-    res.send({success: true, msg: 'All user data  updated successfully', ...updatedUserArray})
-})
-// DELETE USER BY ID 
-app.delete('/user/delete/:Id', (req, res) => {
-    const userId = req.params.Id
-    const allUsers = getDataFromFileSystem()
-    // const findUser  =allUsers.find(user => user.Id === +userId)
-    const updatedUserArray = allUsers.filter(user => user.Id !== +userId)
-    // finally save it
-    saveDataToFileSystem(updatedUserArray)
-    res.send({success: true, msg: 'Deleted The User ', ...updatedUserArray})
-})
+app.use("/user", randomUserRoute)
+
 app.get('/', (req, res) => {
     res.send('SERVER IS UP AND RUNNING')
 })
