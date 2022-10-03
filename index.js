@@ -5,6 +5,7 @@ const port = process.env.PORT || 5000;
 const randomUserRoute = require("./routes/v1/user.route");
 
 app.use(cors());
+require('dotenv').config()
 app.use(express.json())
 
 app.use("/user", randomUserRoute)
