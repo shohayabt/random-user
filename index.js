@@ -4,6 +4,7 @@ const cors = require("cors")
 const fs = require("fs")
 const port = process.env.PORT || 5000;
 const randomUserRoute = require("./routes/v1/user.route");
+const saveDataToFileSystem = require('./utiles/saveDataToFileSystem');
 
 app.use(cors());
 app.use(express());
@@ -14,12 +15,6 @@ const getUserData = () => {
     const jsonData = fs.readFileSync('data.json')
     return JSON.parse(jsonData)    
 }
-// STORE USER DATA IN FILE SYSTEM 
-const saveUserData = (data) => {
-    const stringifyData = JSON.stringify(data)
-    fs.writeFileSync('data.json', stringifyData)
-}
-
 // GET ALL USER API
 app.get('/user/all', (req, res) => {
         const {s} = req.query
@@ -52,7 +47,7 @@ app.post('/user/save', (req, res) => {
     //append the user data
     existUsers.push(userData)
     //save the new user data
-    saveUserData(existUsers);
+    saveDataToFileSystem(existUsers)
     res.send({success: true, msg: 'User data added successfully'})
 })
 app.patch("/user/update/:Id",(req,res)=>{
@@ -75,7 +70,7 @@ app.patch("/user/update/:Id",(req,res)=>{
     // push the updated data
     updateUsers.push(updateUserData)
     // finally save it
-     saveUserData(updateUsers)
+     saveDataToFileSystem(updateUsers)
      res.send({success: true, msg: 'User data updated successfully', ...updateUserData})
 })
 // BULK--- UPDATE ALL USER  AT A TIME 
@@ -92,7 +87,7 @@ app.patch("/user/bulk-update",(req,res)=>{
     })
     // console.log(updatedUserArray)
     // finally save it
-    saveUserData(updatedUserArray)
+    saveDataToFileSystem(updatedUserArray)
     res.send({success: true, msg: 'All user data  updated successfully', ...updatedUserArray})
 })
 // DELETE USER BY ID 
@@ -102,7 +97,7 @@ app.delete('/user/delete/:Id', (req, res) => {
     // const findUser  =allUsers.find(user => user.Id === +userId)
     const updatedUserArray = allUsers.filter(user => user.Id !== +userId)
     // finally save it
-    saveUserData(updatedUserArray)
+    saveDataToFileSystem(updatedUserArray)
     res.send({success: true, msg: 'Deleted The User ', ...updatedUserArray})
 })
 app.get('/', (req, res) => {
