@@ -5,32 +5,27 @@ const fs = require("fs")
 const port = process.env.PORT || 5000;
 const randomUserRoute = require("./routes/v1/user.route");
 const saveDataToFileSystem = require('./utiles/saveDataToFileSystem');
+const getDataFromFileSystem = require('./utiles/getDataFromFileSystem');
 
 app.use(cors());
 app.use(express());
 app.use(express.json())
-
-//GET USER DATA FROM FILE SYSTEM
-const getUserData = () => {
-    const jsonData = fs.readFileSync('data.json')
-    return JSON.parse(jsonData)    
-}
 // GET ALL USER API
 app.get('/user/all', (req, res) => {
         const {s} = req.query
-        const allUsers = getUserData()
+        const allUsers = getDataFromFileSystem()
         const result = allUsers.slice(0,s)
         res.json(result)
      })
 // GET A RANDOM USER API
 app.get('/user/random', (req, res) => {
-    const allUsers = getUserData()
+    const allUsers = getDataFromFileSystem()
     const randomUser =Math.floor(Math.random()*allUsers.length)
     res.json(allUsers[randomUser])
 })
 app.post('/user/save', (req, res) => {
     //GET EXISTING USERS 
-    const existUsers = getUserData()
+    const existUsers = getDataFromFileSystem()
     
     //GET THE NEW USER FROM THE GET REQUEST
     const userData = req.body
@@ -55,7 +50,7 @@ app.patch("/user/update/:Id",(req,res)=>{
     const userId = req.params.Id
     console.log(userId)
     //get the existing user data
-    const existUsers = getUserData()
+    const existUsers = getDataFromFileSystem()
     const userData = req.body
     // finding user from file Json 
     const findUser = existUsers.find(user => user.Id == userId )
@@ -76,7 +71,7 @@ app.patch("/user/update/:Id",(req,res)=>{
 // BULK--- UPDATE ALL USER  AT A TIME 
 app.patch("/user/bulk-update",(req,res)=>{
     //get the existing user data
-    const existUsers = getUserData()
+    const existUsers = getDataFromFileSystem()
     // Updated user infromation from user 
     const updatedData = req.body
 
@@ -93,7 +88,7 @@ app.patch("/user/bulk-update",(req,res)=>{
 // DELETE USER BY ID 
 app.delete('/user/delete/:Id', (req, res) => {
     const userId = req.params.Id
-    const allUsers = getUserData()
+    const allUsers = getDataFromFileSystem()
     // const findUser  =allUsers.find(user => user.Id === +userId)
     const updatedUserArray = allUsers.filter(user => user.Id !== +userId)
     // finally save it
